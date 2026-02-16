@@ -147,7 +147,7 @@ const Auth = () => {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Book container */}
-      <div className="relative z-10 w-full max-w-sm" style={{ perspective: "1200px" }}>
+      <div className="relative z-10 w-full max-w-sm" style={{ perspective: "1500px" }}>
         {/* Header above the book */}
         <div className="flex flex-col items-center gap-2 mb-6">
           <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg">
@@ -156,59 +156,74 @@ const Auth = () => {
           <h1 className="text-2xl font-bold text-white">FinTrack</h1>
         </div>
 
-        {/* Flipping book card */}
-        <div
-          className="relative w-full transition-transform duration-[600ms] ease-in-out"
-          style={{
-            transformStyle: "preserve-3d",
-            transform: isFlipping
-              ? showFront
-                ? "rotateY(-180deg)"
-                : "rotateY(180deg)"
-              : "rotateY(0deg)",
-          }}
-        >
-          {/* Card face */}
+        {/* Book with page-turn */}
+        <div className="relative">
+          {/* Back page (revealed during flip) */}
+          <div className="absolute inset-0 rounded-xl bg-card/80 border border-border/30 shadow-lg" />
+
+          {/* Front page that turns */}
           <div
-            className="glass-card rounded-xl p-6 space-y-4 bg-card/95 backdrop-blur-md border border-border/50 shadow-2xl"
-            style={{ backfaceVisibility: "hidden" }}
+            className="relative transition-transform duration-700 ease-[cubic-bezier(0.645,0.045,0.355,1)]"
+            style={{
+              transformStyle: "preserve-3d",
+              transformOrigin: "left center",
+              transform: isFlipping ? "rotateY(-180deg)" : "rotateY(0deg)",
+            }}
           >
-            <p className="text-sm text-muted-foreground text-center">
-              {mode === "forgot"
-                ? "Reset your password"
-                : mode === "login"
-                ? "Sign in to your account"
-                : "Create your account"}
-            </p>
+            {/* Page front face */}
+            <div
+              className="glass-card rounded-xl p-6 space-y-4 bg-card/95 backdrop-blur-md border border-border/50 shadow-2xl relative"
+              style={{ backfaceVisibility: "hidden" }}
+            >
+              {/* Subtle book edge on the left */}
+              <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-gradient-to-b from-border/20 via-border/40 to-border/20" />
 
-            {formContent}
+              <p className="text-sm text-muted-foreground text-center">
+                {mode === "forgot"
+                  ? "Reset your password"
+                  : mode === "login"
+                  ? "Sign in to your account"
+                  : "Create your account"}
+              </p>
 
-            <p className="text-center text-sm text-muted-foreground pt-1">
-              {mode === "forgot" ? (
-                <button onClick={() => setMode("login")} className="text-primary font-medium hover:underline">
-                  Back to sign in
-                </button>
-              ) : mode === "login" ? (
-                <>
-                  Don't have an account?{" "}
-                  <button onClick={() => flipTo("signup")} className="text-primary font-medium hover:underline">
-                    Sign up
+              {formContent}
+
+              <p className="text-center text-sm text-muted-foreground pt-1">
+                {mode === "forgot" ? (
+                  <button onClick={() => setMode("login")} className="text-primary font-medium hover:underline">
+                    Back to sign in
                   </button>
-                </>
-              ) : (
-                <>
-                  Already have an account?{" "}
-                  <button onClick={() => flipTo("login")} className="text-primary font-medium hover:underline">
-                    Sign in
-                  </button>
-                </>
-              )}
-            </p>
+                ) : mode === "login" ? (
+                  <>
+                    Don't have an account?{" "}
+                    <button onClick={() => flipTo("signup")} className="text-primary font-medium hover:underline">
+                      Sign up
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    Already have an account?{" "}
+                    <button onClick={() => flipTo("login")} className="text-primary font-medium hover:underline">
+                      Sign in
+                    </button>
+                  </>
+                )}
+              </p>
+            </div>
+
+            {/* Page back face (visible when flipped) */}
+            <div
+              className="absolute inset-0 rounded-xl bg-card/90 border border-border/50"
+              style={{
+                backfaceVisibility: "hidden",
+                transform: "rotateY(180deg)",
+              }}
+            />
           </div>
-        </div>
 
-        {/* Book spine shadow */}
-        <div className="absolute left-1/2 top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent pointer-events-none" />
+          {/* Book spine shadow */}
+          <div className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-gradient-to-b from-transparent via-black/20 to-transparent pointer-events-none" />
+        </div>
       </div>
     </div>
   );
