@@ -1,3 +1,4 @@
+import { useState } from "react";
 import AppSidebar from "@/components/AppSidebar";
 import SummaryCards from "@/components/SummaryCards";
 import TransactionList from "@/components/TransactionList";
@@ -7,11 +8,16 @@ import SpendingChart from "@/components/SpendingChart";
 import { Bell, Search } from "lucide-react";
 
 const Index = () => {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <div className="min-h-screen bg-background dark">
-      <AppSidebar />
+      <AppSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
 
-      <main className="ml-[240px] transition-all duration-200">
+      <main
+        className="transition-all duration-200"
+        style={{ marginLeft: collapsed ? 72 : 240 }}
+      >
         {/* Top bar */}
         <header className="sticky top-0 z-40 h-16 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-6">
           <div>
