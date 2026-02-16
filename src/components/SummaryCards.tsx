@@ -4,28 +4,28 @@ import { ArrowUpRight, ArrowDownRight, Wallet, TrendingUp } from "lucide-react";
 const cards = [
   {
     label: "Total Balance",
-    value: "$12,847.50",
+    value: "KSh 1,284,750",
     change: "+2.4%",
     positive: true,
     icon: Wallet,
   },
   {
     label: "Monthly Income",
-    value: "$6,050.00",
+    value: "KSh 605,000",
     change: "+8.1%",
     positive: true,
     icon: ArrowUpRight,
   },
   {
     label: "Monthly Expenses",
-    value: "$3,800.21",
+    value: "KSh 380,021",
     change: "-5.2%",
     positive: true,
     icon: ArrowDownRight,
   },
   {
     label: "Net Savings",
-    value: "$2,249.79",
+    value: "KSh 224,979",
     change: "+12.3%",
     positive: true,
     icon: TrendingUp,

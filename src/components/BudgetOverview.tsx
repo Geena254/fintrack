@@ -25,7 +25,7 @@ const BudgetOverview = () => {
                   <span className="text-sm font-medium text-card-foreground">{budget.name}</span>
                 </div>
                 <span className="text-xs text-muted-foreground font-mono">
-                  ${budget.spent.toLocaleString()} / ${budget.allocated.toLocaleString()}
+                  KSh {budget.spent.toLocaleString()} / KSh {budget.allocated.toLocaleString()}
                 </span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -40,7 +40,7 @@ const BudgetOverview = () => {
                 />
               </div>
               <p className={`text-xs mt-1 ${overBudget ? "text-destructive" : "text-muted-foreground"}`}>
-                {pct}% used · ${(budget.allocated - budget.spent).toLocaleString()} remaining
+                {pct}% used · KSh {(budget.allocated - budget.spent).toLocaleString()} remaining
               </p>
             </motion.div>
           );

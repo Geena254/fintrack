@@ -29,7 +29,7 @@ const TransactionList = () => {
                 tx.type === "income" ? "text-success" : "text-destructive"
               }`}
             >
-              {tx.type === "income" ? "+" : "-"}${tx.amount.toFixed(2)}
+              {tx.type === "income" ? "+" : "-"}KSh {tx.amount.toLocaleString()}
             </span>
           </motion.div>
         ))}

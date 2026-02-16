@@ -20,7 +20,7 @@ const AppSidebar = () => {
     <motion.aside
       animate={{ width: collapsed ? 72 : 240 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col z-50"
+      className="h-screen bg-sidebar border-r border-sidebar-border flex flex-col z-50 shrink-0 sticky left-0 top-0"
     >
       <div className="flex items-center gap-3 px-4 h-16 border-b border-sidebar-border">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
