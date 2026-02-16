@@ -7,6 +7,8 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   fullName: string;
+  avatarUrl: string;
+  phoneNumber: string;
   signOut: () => Promise<void>;
   refreshProfile: () => void;
 }
@@ -16,6 +18,8 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: true,
   fullName: "",
+  avatarUrl: "",
+  phoneNumber: "",
   signOut: async () => {},
   refreshProfile: () => {},
 });
@@ -27,6 +31,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [fullName, setFullName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -36,6 +42,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setTimeout(() => fetchProfile(session.user.id), 0);
       } else {
         setFullName("");
+        setAvatarUrl("");
+        setPhoneNumber("");
       }
       setLoading(false);
     });
@@ -53,10 +61,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("full_name")
+      .select("full_name, avatar_url, phone_number")
       .eq("user_id", userId)
       .single();
-    if (data?.full_name) setFullName(data.full_name);
+    if (data) {
+      setFullName(data.full_name || "");
+      setAvatarUrl(data.avatar_url || "");
+      setPhoneNumber(data.phone_number || "");
+    }
   };
 
   const signOut = async () => {
@@ -68,7 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, fullName, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, loading, fullName, avatarUrl, phoneNumber, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

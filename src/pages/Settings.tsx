@@ -1,36 +1,34 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Pencil, Check, X } from "lucide-react";
+import { Moon, Sun, Pencil, Check, X, Camera, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, fullName, refreshProfile } = useAuth();
+  const { user, fullName, avatarUrl, phoneNumber, refreshProfile } = useAuth();
   const { toast } = useToast();
-  const [editing, setEditing] = useState(false);
+
+  const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(fullName);
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [phone, setPhone] = useState(phoneNumber);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const initials = fullName
     ? fullName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
-  const handleEdit = () => {
-    setName(fullName);
-    setEditing(true);
-  };
+  const handleEditName = () => { setName(fullName); setEditingName(true); };
+  const handleCancelName = () => { setEditingName(false); setName(fullName); };
 
-  const handleCancel = () => {
-    setEditing(false);
-    setName(fullName);
-  };
-
-  const handleSave = async () => {
+  const handleSaveName = async () => {
     if (!user || !name?.trim()) return;
     setSaving(true);
     const { error } = await supabase
@@ -38,12 +36,74 @@ const Settings = () => {
       .update({ full_name: name.trim() })
       .eq("user_id", user.id);
     setSaving(false);
-
     if (error) {
       toast({ title: "Error", description: "Failed to update name.", variant: "destructive" });
     } else {
       toast({ title: "Profile updated", description: "Your name has been updated." });
-      setEditing(false);
+      setEditingName(false);
+      refreshProfile();
+    }
+  };
+
+  const handleEditPhone = () => { setPhone(phoneNumber); setEditingPhone(true); };
+  const handleCancelPhone = () => { setEditingPhone(false); setPhone(phoneNumber); };
+
+  const handleSavePhone = async () => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ phone_number: phone?.trim() || null })
+      .eq("user_id", user.id);
+    setSaving(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to update phone number.", variant: "destructive" });
+    } else {
+      toast({ title: "Profile updated", description: "Your phone number has been updated." });
+      setEditingPhone(false);
+      refreshProfile();
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Invalid file", description: "Please upload an image file.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an image under 2MB.", variant: "destructive" });
+      return;
+    }
+
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const filePath = `${user.id}/avatar.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      setUploading(false);
+      toast({ title: "Upload failed", description: uploadError.message, variant: "destructive" });
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ avatar_url: urlData.publicUrl })
+      .eq("user_id", user.id);
+
+    setUploading(false);
+    if (updateError) {
+      toast({ title: "Error", description: "Failed to save avatar.", variant: "destructive" });
+    } else {
+      toast({ title: "Avatar updated", description: "Your profile picture has been updated." });
       refreshProfile();
     }
   };
@@ -55,16 +115,35 @@ const Settings = () => {
       </div>
 
       {/* User Profile */}
-      <div className="glass-card rounded-xl p-5 space-y-4">
+      <div className="glass-card rounded-xl p-5 space-y-5">
         <p className="text-sm font-medium text-card-foreground">Profile</p>
         <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14">
-            <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            {editing ? (
+          <div className="relative group">
+            <Avatar className="h-16 w-16">
+              {avatarUrl ? (
+                <AvatarImage src={avatarUrl} alt="Profile" />
+              ) : null}
+              <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+            >
+              <Camera className="w-5 h-5 text-white" />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
+          </div>
+          <div className="flex-1 min-w-0 space-y-1">
+            {editingName ? (
               <div className="flex items-center gap-2">
                 <Input
                   value={name}
@@ -72,17 +151,17 @@ const Settings = () => {
                   className="h-9 max-w-[220px]"
                   autoFocus
                 />
-                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleSave} disabled={saving}>
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleSaveName} disabled={saving}>
                   <Check className="w-4 h-4 text-primary" />
                 </Button>
-                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleCancel}>
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleCancelName}>
                   <X className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <p className="text-base font-semibold text-card-foreground">{fullName || "User"}</p>
-                <button onClick={handleEdit} className="text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={handleEditName} className="text-muted-foreground hover:text-foreground transition-colors">
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -90,7 +169,40 @@ const Settings = () => {
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </div>
         </div>
+
+        {/* Phone Number */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Phone className="w-4 h-4 text-muted-foreground" />
+            <p className="text-sm font-medium text-card-foreground">Phone Number</p>
+          </div>
+          {editingPhone ? (
+            <div className="flex items-center gap-2">
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+254..."
+                className="h-9 max-w-[180px]"
+                autoFocus
+              />
+              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleSavePhone} disabled={saving}>
+                <Check className="w-4 h-4 text-primary" />
+              </Button>
+              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleCancelPhone}>
+                <X className="w-4 h-4 text-muted-foreground" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">{phoneNumber || "Not set"}</span>
+              <button onClick={handleEditPhone} className="text-muted-foreground hover:text-foreground transition-colors">
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
       <div className="glass-card rounded-xl p-5 space-y-6">
         <div className="flex items-center justify-between">
           <div>
