@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import { TrendingUp, ArrowRight, BarChart3, Shield, Wallet, Target, PiggyBank, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -36,6 +37,75 @@ const features = [
   },
 ];
 
+const HeroSection = () => {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+
+  const yBadge = useTransform(scrollYProgress, [0, 1], [0, -40]);
+  const yHeading = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const yText = useTransform(scrollYProgress, [0, 1], [0, -60]);
+  const yButtons = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  return (
+    <section ref={ref} className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-24 text-center overflow-hidden">
+      <div className="space-y-6">
+        <motion.div
+          style={{ y: yBadge, opacity }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-medium"
+        >
+          <Zap className="w-3.5 h-3.5" />
+          Simple. Powerful. Free.
+        </motion.div>
+        <motion.h1
+          style={{ y: yHeading, opacity }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight leading-tight"
+        >
+          Take Control of Your
+          <span className="text-primary block">Personal Finances</span>
+        </motion.h1>
+        <motion.p
+          style={{ y: yText, opacity }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+        >
+          Track spending, plan budgets, and achieve savings goals — all in one
+          beautifully simple dashboard built for everyday Kenyans.
+        </motion.p>
+        <motion.div
+          style={{ y: yButtons, opacity }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2"
+        >
+          <Link to="/auth?mode=signup">
+            <Button size="lg" className="gap-2 text-base px-8">
+              Start for Free <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+          <Link to="/auth">
+            <Button size="lg" variant="outline" className="text-base px-8">
+              Sign In
+            </Button>
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
 const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -61,40 +131,8 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-24 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="space-y-6"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-medium">
-            <Zap className="w-3.5 h-3.5" />
-            Simple. Powerful. Free.
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight leading-tight">
-            Take Control of Your
-            <span className="text-primary block">Personal Finances</span>
-          </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Track spending, plan budgets, and achieve savings goals — all in one
-            beautifully simple dashboard built for everyday Kenyans.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Link to="/auth?mode=signup">
-              <Button size="lg" className="gap-2 text-base px-8">
-                Start for Free <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button size="lg" variant="outline" className="text-base px-8">
-                Sign In
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-      </section>
+      {/* Hero with parallax */}
+      <HeroSection />
 
       {/* Features */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-24">
