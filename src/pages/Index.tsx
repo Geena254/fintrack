@@ -16,11 +16,9 @@ const Index = () => {
         <p className="text-sm text-muted-foreground">Here's your financial overview.</p>
       </div>
       <SummaryCards />
+      <SpendingChart />
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
-          <SpendingChart />
-        </div>
-        <div className="lg:col-span-2">
           <BudgetOverview maxHeight="340px" />
         </div>
       </div>
