@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/ThemeProvider";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", to: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
   { icon: Receipt, label: "Transactions", to: "/transactions" },
   { icon: PiggyBank, label: "Budgets", to: "/budgets" },
   { icon: Target, label: "Goals", to: "/goals" },
@@ -46,7 +46,7 @@ const AppSidebar = ({ onClose }: { onClose?: () => void }) => {
           <NavLink
             key={item.label}
             to={item.to}
-            end={item.to === "/"}
+            end={item.to === "/dashboard"}
             onClick={onClose}
             className={({ isActive }) =>
               cn(

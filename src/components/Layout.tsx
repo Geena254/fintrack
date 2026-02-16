@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const pageTitles: Record<string, string> = {
-  "/": "Dashboard",
+  "/dashboard": "Dashboard",
   "/transactions": "Transactions",
   "/budgets": "Budgets",
   "/goals": "Goals",
