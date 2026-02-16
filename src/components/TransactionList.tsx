@@ -33,9 +33,11 @@ const categoryIcons: Record<string, React.ElementType> = {
 interface TransactionListProps {
   showFilters?: boolean;
   maxHeight?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
 }
 
-const TransactionList = ({ showFilters = false, maxHeight }: TransactionListProps) => {
+const TransactionList = ({ showFilters = false, maxHeight, dateFrom: externalDateFrom, dateTo: externalDateTo }: TransactionListProps) => {
   const { data: transactions = [], isLoading } = useTransactions();
   const saveMutation = useSaveTransaction();
   const deleteMutation = useDeleteTransaction();
@@ -55,11 +57,13 @@ const TransactionList = ({ showFilters = false, maxHeight }: TransactionListProp
     return transactions.filter((tx) => {
       if (search && !tx.description.toLowerCase().includes(search.toLowerCase())) return false;
       if (categoryFilter !== "all" && tx.category !== categoryFilter) return false;
-      if (dateFrom && new Date(tx.date) < dateFrom) return false;
-      if (dateTo && new Date(tx.date) > dateTo) return false;
+      const effectiveFrom = dateFrom || externalDateFrom;
+      const effectiveTo = dateTo || externalDateTo;
+      if (effectiveFrom && new Date(tx.date) < effectiveFrom) return false;
+      if (effectiveTo && new Date(tx.date) > effectiveTo) return false;
       return true;
     });
-  }, [transactions, search, categoryFilter, dateFrom, dateTo]);
+  }, [transactions, search, categoryFilter, dateFrom, dateTo, externalDateFrom, externalDateTo]);
 
   const hasActiveFilters = search || categoryFilter !== "all" || dateFrom || dateTo;
   const clearFilters = () => { setSearch(""); setCategoryFilter("all"); setDateFrom(undefined); setDateTo(undefined); };

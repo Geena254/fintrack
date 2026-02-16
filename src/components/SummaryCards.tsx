@@ -13,24 +13,30 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-const SummaryCards = () => {
+interface SummaryCardsProps {
+  dateFrom?: Date;
+  dateTo?: Date;
+}
+
+const SummaryCards = ({ dateFrom, dateTo }: SummaryCardsProps) => {
   const { data: transactions = [] } = useTransactions();
 
   const { totalIncome, totalExpenses } = useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
     let totalIncome = 0;
     let totalExpenses = 0;
     transactions.forEach((tx) => {
       const d = new Date(tx.date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        if (tx.type === "income") totalIncome += Number(tx.amount);
-        else totalExpenses += Number(tx.amount);
+      if (dateFrom && d < dateFrom) return;
+      if (dateTo && d > dateTo) return;
+      if (!dateFrom && !dateTo) {
+        const now = new Date();
+        if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) return;
       }
+      if (tx.type === "income") totalIncome += Number(tx.amount);
+      else totalExpenses += Number(tx.amount);
     });
     return { totalIncome, totalExpenses };
-  }, [transactions]);
+  }, [transactions, dateFrom, dateTo]);
 
   const netSavings = totalIncome - totalExpenses;
   const balance = transactions.reduce((acc, tx) => acc + (tx.type === "income" ? Number(tx.amount) : -Number(tx.amount)), 0);
