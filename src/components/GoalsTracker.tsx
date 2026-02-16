@@ -30,10 +30,10 @@ const GoalsTracker = () => {
               </div>
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="text-lg font-bold font-mono text-card-foreground">
-                  ${goal.currentAmount.toLocaleString()}
+                  KSh {goal.currentAmount.toLocaleString()}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  / ${goal.targetAmount.toLocaleString()}
+                  / KSh {goal.targetAmount.toLocaleString()}
                 </span>
               </div>
               <div className="h-1.5 bg-muted rounded-full overflow-hidden">

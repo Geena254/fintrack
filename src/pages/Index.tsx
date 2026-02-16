@@ -8,10 +8,10 @@ import { Bell, Search } from "lucide-react";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background dark">
+    <div className="min-h-screen bg-background dark flex">
       <AppSidebar />
 
-      <main className="ml-[240px] transition-all duration-200">
+      <main className="flex-1 min-w-0 transition-all duration-200">
         {/* Top bar */}
         <header className="sticky top-0 z-40 h-16 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-6">
           <div>
