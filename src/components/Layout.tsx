@@ -1,9 +1,17 @@
 import { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import AppSidebar from "@/components/AppSidebar";
-import { Bell, Search, Menu, Moon, Sun, LogOut } from "lucide-react";
+import { Menu, Moon, Sun, LogOut, Settings, UserPen } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const pageTitles: Record<string, string> = {
   "/": "Dashboard",
@@ -16,8 +24,9 @@ const pageTitles: Record<string, string> = {
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { fullName, signOut } = useAuth();
+  const { fullName, avatarUrl, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const title = pageTitles[location.pathname] || "FinTrack";
   const initials = fullName ? fullName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U";
 
@@ -41,12 +50,37 @@ const Layout = () => {
             <button onClick={toggleTheme} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-accent transition-colors">
               {theme === "dark" ? <Sun className="w-4 h-4 text-muted-foreground" /> : <Moon className="w-4 h-4 text-muted-foreground" />}
             </button>
-            <button onClick={signOut} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-accent transition-colors" title="Sign out">
-              <LogOut className="w-4 h-4 text-muted-foreground" />
-            </button>
-            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">
-              {initials}
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
+                  <Avatar className="h-9 w-9 cursor-pointer">
+                    {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-popover border border-border shadow-lg z-50">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium text-foreground truncate">{fullName || "User"}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2">
+                  <UserPen className="w-4 h-4" />
+                  Edit Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer gap-2 text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <Outlet />
