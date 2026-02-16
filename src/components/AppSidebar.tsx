@@ -13,7 +13,7 @@ const navItems = [
   { icon: Settings, label: "Settings" },
 ];
 
-const AppSidebar = () => {
+const AppSidebar = ({ onClose }: { onClose?: () => void }) => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
