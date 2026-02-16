@@ -24,12 +24,8 @@ const TransactionList = () => {
               <p className="text-sm font-medium text-card-foreground truncate">{tx.description}</p>
               <p className="text-xs text-muted-foreground">{tx.category} · {tx.date}</p>
             </div>
-            <span
-              className={`text-sm font-semibold font-mono ${
-                tx.type === "income" ? "text-success" : "text-destructive"
-              }`}
-            >
-              {tx.type === "income" ? "+" : "-"}${tx.amount.toFixed(2)}
+            <span className={`text-sm font-semibold font-mono ${tx.type === "income" ? "text-success" : "text-destructive"}`}>
+              {tx.type === "income" ? "+" : "-"}KSh {tx.amount.toFixed(2)}
             </span>
           </motion.div>
         ))}
