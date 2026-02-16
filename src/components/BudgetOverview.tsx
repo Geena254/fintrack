@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import BudgetFormDialog from "@/components/BudgetFormDialog";
-import { useBudgets, useSaveBudget, useDeleteBudget } from "@/hooks/useFinanceData";
+import { useBudgets, useSaveBudget, useDeleteBudget, useTransactions } from "@/hooks/useFinanceData";
 import { toast } from "sonner";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -29,8 +29,26 @@ interface BudgetOverviewProps {
 
 const BudgetOverview = ({ editable = false, maxHeight }: BudgetOverviewProps) => {
   const { data: budgets = [], isLoading } = useBudgets();
+  const { data: transactions = [] } = useTransactions();
   const saveMutation = useSaveBudget();
   const deleteMutation = useDeleteBudget();
+
+  // Compute spent per budget category from current month's expense transactions
+  const spentByCategory = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const map: Record<string, number> = {};
+    transactions.forEach((tx) => {
+      if (tx.type !== "expense") return;
+      const d = new Date(tx.date);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        const cat = tx.category.toLowerCase();
+        map[cat] = (map[cat] || 0) + Number(tx.amount);
+      }
+    });
+    return map;
+  }, [transactions]);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<any>(null);
@@ -62,7 +80,8 @@ const BudgetOverview = ({ editable = false, maxHeight }: BudgetOverviewProps) =>
         <p className="text-sm text-muted-foreground py-8 text-center">No budgets yet.</p>
       ) : (
         budgets.map((budget, i) => {
-          const pct = budget.allocated > 0 ? Math.round((Number(budget.spent) / Number(budget.allocated)) * 100) : 0;
+          const spent = spentByCategory[budget.name.toLowerCase()] || 0;
+          const pct = budget.allocated > 0 ? Math.round((spent / Number(budget.allocated)) * 100) : 0;
           const overBudget = pct > 90;
           const Icon = iconMap[budget.icon] || CreditCard;
           return (
@@ -80,7 +99,7 @@ const BudgetOverview = ({ editable = false, maxHeight }: BudgetOverviewProps) =>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground font-mono">
-                    KSh {Number(budget.spent).toLocaleString()} / KSh {Number(budget.allocated).toLocaleString()}
+                    KSh {spent.toLocaleString()} / KSh {Number(budget.allocated).toLocaleString()}
                   </span>
                   {editable && (
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -104,7 +123,7 @@ const BudgetOverview = ({ editable = false, maxHeight }: BudgetOverviewProps) =>
                 />
               </div>
               <p className={`text-xs mt-1 ${overBudget ? "text-destructive" : "text-muted-foreground"}`}>
-                {pct}% used · KSh {(Number(budget.allocated) - Number(budget.spent)).toLocaleString()} remaining
+                {pct}% used · KSh {(Number(budget.allocated) - spent).toLocaleString()} remaining
               </p>
             </motion.div>
           );
