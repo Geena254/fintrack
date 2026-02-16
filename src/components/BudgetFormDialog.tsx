@@ -4,27 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { BudgetCategory } from "@/data/mockData";
-import {
-  ShoppingCart, Home, Car, Utensils, Zap, Wifi, Heart,
-  Plane, BookOpen, Gift, CreditCard,
-} from "lucide-react";
 
-const iconMap: Record<string, React.ElementType> = {
-  Housing: Home,
-  Groceries: ShoppingCart,
-  Transport: Car,
-  Dining: Utensils,
-  Utilities: Zap,
-  Entertainment: Heart,
-  Internet: Wifi,
-  Travel: Plane,
-  Education: BookOpen,
-  Gifts: Gift,
-  Other: CreditCard,
-};
-
-const iconNames = Object.keys(iconMap);
+const iconNames = ["Housing", "Groceries", "Transport", "Dining", "Utilities", "Entertainment", "Internet", "Travel", "Education", "Gifts", "Other"];
 
 const colorOptions = [
   { label: "Blue", value: "hsl(var(--chart-budget))" },
@@ -38,8 +19,8 @@ const colorOptions = [
 interface BudgetFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  budget?: BudgetCategory | null;
-  onSave: (budget: BudgetCategory) => void;
+  budget?: { id?: string; name: string; allocated: number; spent: number; icon: string; color: string } | null;
+  onSave: (budget: { id?: string; name: string; allocated: number; spent: number; icon: string; color: string }) => void;
 }
 
 const BudgetFormDialog = ({ open, onOpenChange, budget, onSave }: BudgetFormDialogProps) => {
@@ -51,31 +32,22 @@ const BudgetFormDialog = ({ open, onOpenChange, budget, onSave }: BudgetFormDial
 
   useEffect(() => {
     if (budget) {
-      setName(budget.name);
-      setAllocated(budget.allocated.toString());
-      setSpent(budget.spent.toString());
-      const foundKey = iconNames.find((k) => iconMap[k] === budget.icon) || "Other";
-      setIconKey(foundKey);
-      setColor(budget.color);
+      setName(budget.name); setAllocated(budget.allocated.toString()); setSpent(budget.spent.toString());
+      setIconKey(budget.icon || "Other"); setColor(budget.color);
     } else {
-      setName("");
-      setAllocated("");
-      setSpent("0");
-      setIconKey("Other");
-      setColor(colorOptions[0].value);
+      setName(""); setAllocated(""); setSpent("0"); setIconKey("Other"); setColor(colorOptions[0].value);
     }
   }, [budget, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !allocated || Number(allocated) <= 0) return;
-
     onSave({
-      id: budget?.id || crypto.randomUUID(),
+      id: budget?.id,
       name: name.trim(),
       allocated: Number(allocated),
       spent: Number(spent) || 0,
-      icon: iconMap[iconKey] || CreditCard,
+      icon: iconKey,
       color,
     });
     onOpenChange(false);
@@ -108,9 +80,7 @@ const BudgetFormDialog = ({ open, onOpenChange, budget, onSave }: BudgetFormDial
               <Select value={iconKey} onValueChange={setIconKey}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {iconNames.map((k) => (
-                    <SelectItem key={k} value={k}>{k}</SelectItem>
-                  ))}
+                  {iconNames.map((k) => <SelectItem key={k} value={k}>{k}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -119,9 +89,7 @@ const BudgetFormDialog = ({ open, onOpenChange, budget, onSave }: BudgetFormDial
               <Select value={color} onValueChange={setColor}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {colorOptions.map((c) => (
-                    <SelectItem key={c.label} value={c.value}>{c.label}</SelectItem>
-                  ))}
+                  {colorOptions.map((c) => <SelectItem key={c.label} value={c.value}>{c.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

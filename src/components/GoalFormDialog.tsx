@@ -9,26 +9,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import type { FinancialGoal } from "@/data/mockData";
-import { Heart, Plane, BookOpen, Gift, Home, Car, CreditCard } from "lucide-react";
 
-const iconMap: Record<string, React.ElementType> = {
-  Savings: Heart,
-  Travel: Plane,
-  Education: BookOpen,
-  Gifts: Gift,
-  Housing: Home,
-  Vehicle: Car,
-  Other: CreditCard,
-};
-
-const iconNames = Object.keys(iconMap);
+const iconNames = ["Savings", "Travel", "Education", "Gifts", "Housing", "Vehicle", "Target", "Other"];
 
 interface GoalFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  goal?: FinancialGoal | null;
-  onSave: (goal: FinancialGoal) => void;
+  goal?: { id?: string; name: string; target_amount: number; current_amount: number; deadline: string; icon: string } | null;
+  onSave: (goal: { id?: string; name: string; target_amount: number; current_amount: number; deadline: string; icon: string }) => void;
 }
 
 const GoalFormDialog = ({ open, onOpenChange, goal, onSave }: GoalFormDialogProps) => {
@@ -40,32 +28,23 @@ const GoalFormDialog = ({ open, onOpenChange, goal, onSave }: GoalFormDialogProp
 
   useEffect(() => {
     if (goal) {
-      setName(goal.name);
-      setTargetAmount(goal.targetAmount.toString());
-      setCurrentAmount(goal.currentAmount.toString());
-      const foundKey = iconNames.find((k) => iconMap[k] === goal.icon) || "Other";
-      setIconKey(foundKey);
-      setDeadline(new Date(goal.deadline));
+      setName(goal.name); setTargetAmount(goal.target_amount.toString()); setCurrentAmount(goal.current_amount.toString());
+      setIconKey(goal.icon || "Other"); setDeadline(new Date(goal.deadline));
     } else {
-      setName("");
-      setTargetAmount("");
-      setCurrentAmount("0");
-      setIconKey("Other");
-      setDeadline(new Date());
+      setName(""); setTargetAmount(""); setCurrentAmount("0"); setIconKey("Other"); setDeadline(new Date());
     }
   }, [goal, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !targetAmount || Number(targetAmount) <= 0) return;
-
     onSave({
-      id: goal?.id || crypto.randomUUID(),
+      id: goal?.id,
       name: name.trim(),
-      targetAmount: Number(targetAmount),
-      currentAmount: Number(currentAmount) || 0,
+      target_amount: Number(targetAmount),
+      current_amount: Number(currentAmount) || 0,
       deadline: format(deadline, "yyyy-MM-dd"),
-      icon: iconMap[iconKey] || CreditCard,
+      icon: iconKey,
     });
     onOpenChange(false);
   };
@@ -97,9 +76,7 @@ const GoalFormDialog = ({ open, onOpenChange, goal, onSave }: GoalFormDialogProp
               <Select value={iconKey} onValueChange={setIconKey}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {iconNames.map((k) => (
-                    <SelectItem key={k} value={k}>{k}</SelectItem>
-                  ))}
+                  {iconNames.map((k) => <SelectItem key={k} value={k}>{k}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -108,8 +85,7 @@ const GoalFormDialog = ({ open, onOpenChange, goal, onSave }: GoalFormDialogProp
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className={cn("w-full justify-start text-left font-normal")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(deadline, "MMM dd, yyyy")}
+                    <CalendarIcon className="mr-2 h-4 w-4" />{format(deadline, "MMM dd, yyyy")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
