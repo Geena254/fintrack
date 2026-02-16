@@ -7,7 +7,7 @@ const Goals = () => {
         <h1 className="text-xl font-bold text-foreground">Goals</h1>
         <p className="text-sm text-muted-foreground">Track progress towards your financial goals.</p>
       </div>
-      <GoalsTracker />
+      <GoalsTracker editable />
     </div>
   );
 };
