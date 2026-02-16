@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Receipt, PiggyBank, Target, 
   Settings, LogOut, TrendingUp, ChevronLeft, ChevronRight
 } from "lucide-react";
+import { useState } from "react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
@@ -12,12 +13,9 @@ const navItems = [
   { icon: Settings, label: "Settings" },
 ];
 
-interface AppSidebarProps {
-  collapsed: boolean;
-  onToggle: () => void;
-}
+const AppSidebar = () => {
+  const [collapsed, setCollapsed] = useState(false);
 
-const AppSidebar = ({ collapsed, onToggle }: AppSidebarProps) => {
   return (
     <motion.aside
       animate={{ width: collapsed ? 72 : 240 }}
@@ -57,7 +55,7 @@ const AppSidebar = ({ collapsed, onToggle }: AppSidebarProps) => {
 
       <div className="p-2 border-t border-sidebar-border">
         <button
-          onClick={onToggle}
+          onClick={() => setCollapsed(!collapsed)}
           className="w-full flex items-center justify-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
         >
           {collapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
