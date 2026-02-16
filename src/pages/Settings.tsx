@@ -4,13 +4,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Pencil, Check, X, Camera, Phone } from "lucide-react";
+import { Moon, Sun, Pencil, Check, X, Camera, Phone, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, fullName, avatarUrl, phoneNumber, refreshProfile } = useAuth();
+  const { user, fullName, avatarUrl, phoneNumber, refreshProfile, signOut } = useAuth();
   const { toast } = useToast();
 
   const [editingName, setEditingName] = useState(false);
@@ -228,6 +228,15 @@ const Settings = () => {
           <span className="text-sm font-mono text-muted-foreground">KSh (Kenyan Shilling)</span>
         </div>
       </div>
+
+      {/* Sign Out */}
+      <button
+        onClick={signOut}
+        className="w-full glass-card rounded-xl p-4 flex items-center justify-center gap-2 text-destructive hover:bg-destructive/10 transition-colors font-medium text-sm"
+      >
+        <LogOut className="w-4 h-4" />
+        Sign Out
+      </button>
     </div>
   );
 };
