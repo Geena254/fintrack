@@ -8,10 +8,8 @@ const Budgets = () => {
         <h1 className="text-xl font-bold text-foreground">Budgets</h1>
         <p className="text-sm text-muted-foreground">Track your spending against budget categories.</p>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BudgetOverview editable />
-        <SpendingChart />
-      </div>
+      <BudgetOverview editable maxHeight="340px" />
+      <SpendingChart />
     </div>
   );
 };
