@@ -53,79 +53,80 @@ const HeroSection = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <section ref={ref} className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-24 text-center overflow-hidden">
-      <div className="space-y-6">
+    <section ref={ref} className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-24 overflow-hidden">
+      <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+        {/* Left: Text content */}
+        <div className="flex-1 text-center lg:text-left space-y-6">
+          <motion.div
+            style={{ y: yBadge, opacity }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-medium"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Simple. Powerful. Free.
+          </motion.div>
+          <motion.h1
+            style={{ y: yHeading, opacity }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl sm:text-5xl lg:text-5xl font-extrabold text-foreground tracking-tight leading-tight"
+          >
+            Take Control of Your
+            <span className="text-primary block">Personal Finances</span>
+          </motion.h1>
+          <motion.p
+            style={{ y: yText, opacity }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed"
+          >
+            Track spending, plan budgets, and achieve savings goals — all in one
+            beautifully simple dashboard built for everyday Kenyans.
+          </motion.p>
+          <motion.div
+            style={{ y: yButtons, opacity }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 pt-2"
+          >
+            <Link to="/auth?mode=signup">
+              <Button size="lg" className="gap-2 text-base px-8">
+                Start for Free <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="lg" variant="outline" className="text-base px-8">
+                Sign In
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Right: Floating dashboard mockup */}
         <motion.div
-          style={{ y: yBadge, opacity }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-medium"
+          style={{ y: yMockup }}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex-1 relative w-full max-w-xl lg:max-w-none"
         >
-          <Zap className="w-3.5 h-3.5" />
-          Simple. Powerful. Free.
-        </motion.div>
-        <motion.h1
-          style={{ y: yHeading, opacity }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight leading-tight"
-        >
-          Take Control of Your
-          <span className="text-primary block">Personal Finances</span>
-        </motion.h1>
-        <motion.p
-          style={{ y: yText, opacity }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-        >
-          Track spending, plan budgets, and achieve savings goals — all in one
-          beautifully simple dashboard built for everyday Kenyans.
-        </motion.p>
-        <motion.div
-          style={{ y: yButtons, opacity }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2"
-        >
-          <Link to="/auth?mode=signup">
-            <Button size="lg" className="gap-2 text-base px-8">
-              Start for Free <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link to="/auth">
-            <Button size="lg" variant="outline" className="text-base px-8">
-              Sign In
-            </Button>
-          </Link>
+          <div className="relative rounded-xl overflow-hidden shadow-2xl border border-border/50">
+            <img
+              src={dashboardMockup}
+              alt="FinTrack Dashboard Preview"
+              className="w-full h-auto"
+              loading="lazy"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent" />
+          </div>
+          <div className="absolute -inset-4 -z-10 rounded-2xl bg-primary/10 blur-3xl" />
         </motion.div>
       </div>
-
-      {/* Floating dashboard mockup */}
-      <motion.div
-        style={{ y: yMockup }}
-        initial={{ opacity: 0, y: 60 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.5 }}
-        className="mt-14 relative mx-auto max-w-4xl"
-      >
-        <div className="relative rounded-xl overflow-hidden shadow-2xl border border-border/50">
-          <img
-            src={dashboardMockup}
-            alt="FinTrack Dashboard Preview"
-            className="w-full h-auto"
-            loading="lazy"
-          />
-          {/* Gradient fade at bottom */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
-        </div>
-        {/* Glow effect behind the mockup */}
-        <div className="absolute -inset-4 -z-10 rounded-2xl bg-primary/10 blur-3xl" />
-      </motion.div>
     </section>
   );
 };
