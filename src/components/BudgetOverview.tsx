@@ -25,9 +25,11 @@ const iconMap: Record<string, React.ElementType> = {
 interface BudgetOverviewProps {
   editable?: boolean;
   maxHeight?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
 }
 
-const BudgetOverview = ({ editable = false, maxHeight }: BudgetOverviewProps) => {
+const BudgetOverview = ({ editable = false, maxHeight, dateFrom, dateTo }: BudgetOverviewProps) => {
   const { data: budgets = [], isLoading } = useBudgets();
   const { data: transactions = [] } = useTransactions();
   const saveMutation = useSaveBudget();
@@ -42,13 +44,17 @@ const BudgetOverview = ({ editable = false, maxHeight }: BudgetOverviewProps) =>
     transactions.forEach((tx) => {
       if (tx.type !== "expense") return;
       const d = new Date(tx.date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        const cat = tx.category.toLowerCase();
-        map[cat] = (map[cat] || 0) + Number(tx.amount);
+      if (dateFrom || dateTo) {
+        if (dateFrom && d < dateFrom) return;
+        if (dateTo && d > dateTo) return;
+      } else {
+        if (d.getMonth() !== currentMonth || d.getFullYear() !== currentYear) return;
       }
+      const cat = tx.category.toLowerCase();
+      map[cat] = (map[cat] || 0) + Number(tx.amount);
     });
     return map;
-  }, [transactions]);
+  }, [transactions, dateFrom, dateTo]);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<any>(null);

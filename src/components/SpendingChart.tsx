@@ -21,21 +21,29 @@ const COLORS = [
 type Filter = "all" | "income" | "expense";
 type Range = "6" | "12" | "all";
 
-const SpendingChart = () => {
+interface SpendingChartProps {
+  dateFrom?: Date;
+  dateTo?: Date;
+}
+
+const SpendingChart = ({ dateFrom, dateTo }: SpendingChartProps) => {
   const { data: transactions = [] } = useTransactions();
   const [filter, setFilter] = useState<Filter>("all");
   const [range, setRange] = useState<Range>("12");
+  const hasDateFilter = !!dateFrom || !!dateTo;
 
   // Build monthly aggregated data from real transactions
   const monthlyData = useMemo(() => {
     const now = new Date();
-    const cutoff = range === "all" ? null : startOfMonth(subMonths(now, Number(range)));
+    const cutoff = hasDateFilter ? null : (range === "all" ? null : startOfMonth(subMonths(now, Number(range))));
 
     const map = new Map<string, { income: number; expenses: number }>();
 
     transactions.forEach((tx) => {
       const d = parseISO(tx.date);
       if (cutoff && d < cutoff) return;
+      if (dateFrom && d < dateFrom) return;
+      if (dateTo && d > dateTo) return;
       const key = format(d, "yyyy-MM");
       const entry = map.get(key) || { income: 0, expenses: 0 };
       if (tx.type === "income") entry.income += Number(tx.amount);
@@ -51,7 +59,7 @@ const SpendingChart = () => {
         expenses: val.expenses,
         savings: val.income - val.expenses,
       }));
-  }, [transactions, range]);
+  }, [transactions, range, dateFrom, dateTo, hasDateFilter]);
 
   // Category breakdown for pie chart (current month expenses)
   const categoryData = useMemo(() => {
@@ -63,14 +71,19 @@ const SpendingChart = () => {
     transactions.forEach((tx) => {
       if (tx.type !== "expense") return;
       const d = parseISO(tx.date);
-      if (d.getMonth() !== currentMonth || d.getFullYear() !== currentYear) return;
+      if (dateFrom || dateTo) {
+        if (dateFrom && d < dateFrom) return;
+        if (dateTo && d > dateTo) return;
+      } else {
+        if (d.getMonth() !== currentMonth || d.getFullYear() !== currentYear) return;
+      }
       map.set(tx.category, (map.get(tx.category) || 0) + Number(tx.amount));
     });
 
     return Array.from(map.entries())
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
-  }, [transactions]);
+  }, [transactions, dateFrom, dateTo]);
 
   const rangeLabel = range === "all" ? "All time" : `Last ${range} months`;
 
