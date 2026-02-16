@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, Receipt, PiggyBank, Target,
-  Settings, TrendingUp, ChevronLeft, ChevronRight,
+  Settings, TrendingUp, ChevronLeft, ChevronRight, Sun, Moon,
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/components/ThemeProvider";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/" },
@@ -17,6 +18,7 @@ const navItems = [
 
 const AppSidebar = ({ onClose }: { onClose?: () => void }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <motion.aside
@@ -61,7 +63,14 @@ const AppSidebar = ({ onClose }: { onClose?: () => void }) => {
         ))}
       </nav>
 
-      <div className="p-2 border-t border-sidebar-border">
+      <div className="p-2 border-t border-sidebar-border space-y-1">
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center justify-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+        >
+          {theme === "dark" ? <Sun className="w-5 h-5 shrink-0" /> : <Moon className="w-5 h-5 shrink-0" />}
+          {!collapsed && <span className="text-sm">{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
+        </button>
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="w-full flex items-center justify-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
