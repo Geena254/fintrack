@@ -8,6 +8,7 @@ interface AuthContextType {
   loading: boolean;
   fullName: string;
   signOut: () => Promise<void>;
+  refreshProfile: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   fullName: "",
   signOut: async () => {},
+  refreshProfile: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -61,8 +63,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut();
   };
 
+  const refreshProfile = () => {
+    if (user) fetchProfile(user.id);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, fullName, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, fullName, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
