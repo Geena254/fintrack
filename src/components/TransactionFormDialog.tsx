@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useBudgets } from "@/hooks/useFinanceData";
 
-const categories = [
+const defaultCategories = [
   "Salary", "Freelance", "Groceries", "Housing", "Transport",
   "Dining", "Utilities", "Entertainment", "Internet", "Travel",
   "Education", "Gifts", "Other",
@@ -24,11 +25,18 @@ interface TransactionFormDialogProps {
 }
 
 const TransactionFormDialog = ({ open, onOpenChange, transaction, onSave }: TransactionFormDialogProps) => {
+  const { data: budgets = [] } = useBudgets();
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"income" | "expense">("expense");
   const [category, setCategory] = useState("Other");
   const [date, setDate] = useState<Date>(new Date());
+
+  const categories = useMemo(() => {
+    const budgetNames = budgets.map((b) => b.name);
+    const merged = [...new Set([...budgetNames, ...defaultCategories])];
+    return merged;
+  }, [budgets]);
 
   useEffect(() => {
     if (transaction) {
