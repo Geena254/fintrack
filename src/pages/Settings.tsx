@@ -1,13 +1,35 @@
 import { useTheme } from "@/components/ThemeProvider";
-import { Moon, Sun } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Moon, Sun, User } from "lucide-react";
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
+  const { user, fullName } = useAuth();
+  const initials = fullName
+    ? fullName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl">
       <div>
         <p className="text-sm text-muted-foreground">Manage your app preferences.</p>
+      </div>
+
+      {/* User Profile */}
+      <div className="glass-card rounded-xl p-5 space-y-4">
+        <p className="text-sm font-medium text-card-foreground">Profile</p>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-14 w-14">
+            <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="text-base font-semibold text-card-foreground">{fullName || "User"}</p>
+            <p className="text-sm text-muted-foreground">{user?.email}</p>
+          </div>
+        </div>
       </div>
       <div className="glass-card rounded-xl p-5 space-y-6">
         <div className="flex items-center justify-between">
