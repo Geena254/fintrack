@@ -24,10 +24,15 @@ const Transactions = () => {
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Transactions</h1>
           <p className="text-sm text-muted-foreground">Manage and track all your transactions.</p>
         </div>
-        <Button variant="outline" size="sm" onClick={exportCSV} disabled={transactions.length === 0} className="gap-1.5">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={exportCSV}
+          disabled={transactions.length === 0}
+          className="gap-1.5"
+        >
           <Download className="w-4 h-4" /> Export CSV
         </Button>
       </div>
