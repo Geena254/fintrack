@@ -1,36 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, ArrowDownRight, Wallet, TrendingUp } from "lucide-react";
-
-const cards = [
-  {
-    label: "Total Balance",
-    value: "KSh 1,284,750",
-    change: "+2.4%",
-    positive: true,
-    icon: Wallet,
-  },
-  {
-    label: "Monthly Income",
-    value: "KSh 605,000",
-    change: "+8.1%",
-    positive: true,
-    icon: ArrowUpRight,
-  },
-  {
-    label: "Monthly Expenses",
-    value: "KSh 380,021",
-    change: "-5.2%",
-    positive: true,
-    icon: ArrowDownRight,
-  },
-  {
-    label: "Net Savings",
-    value: "KSh 224,979",
-    change: "+12.3%",
-    positive: true,
-    icon: TrendingUp,
-  },
-];
+import { useTransactions } from "@/hooks/useFinanceData";
+import { useMemo } from "react";
 
 const container = {
   hidden: {},
@@ -43,31 +14,45 @@ const item = {
 };
 
 const SummaryCards = () => {
+  const { data: transactions = [] } = useTransactions();
+
+  const { totalIncome, totalExpenses } = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    transactions.forEach((tx) => {
+      const d = new Date(tx.date);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        if (tx.type === "income") totalIncome += Number(tx.amount);
+        else totalExpenses += Number(tx.amount);
+      }
+    });
+    return { totalIncome, totalExpenses };
+  }, [transactions]);
+
+  const netSavings = totalIncome - totalExpenses;
+  const balance = transactions.reduce((acc, tx) => acc + (tx.type === "income" ? Number(tx.amount) : -Number(tx.amount)), 0);
+
+  const cards = [
+    { label: "Total Balance", value: `KSh ${balance.toLocaleString()}`, icon: Wallet },
+    { label: "Monthly Income", value: `KSh ${totalIncome.toLocaleString()}`, icon: ArrowUpRight },
+    { label: "Monthly Expenses", value: `KSh ${totalExpenses.toLocaleString()}`, icon: ArrowDownRight },
+    { label: "Net Savings", value: `KSh ${netSavings.toLocaleString()}`, icon: TrendingUp },
+  ];
+
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-    >
+    <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {cards.map((card) => (
-        <motion.div
-          key={card.label}
-          variants={item}
-          className="glass-card rounded-xl p-5 hover:glow-primary transition-shadow"
-        >
+        <motion.div key={card.label} variants={item} className="glass-card rounded-xl p-5 hover:glow-primary transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-muted-foreground font-medium">{card.label}</span>
             <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center">
               <card.icon className="w-4 h-4 text-accent-foreground" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-card-foreground font-mono tracking-tight">
-            {card.value}
-          </p>
-          <p className={`text-xs mt-1 font-medium ${card.positive ? "text-success" : "text-destructive"}`}>
-            {card.change} from last month
-          </p>
+          <p className="text-2xl font-bold text-card-foreground font-mono tracking-tight">{card.value}</p>
         </motion.div>
       ))}
     </motion.div>
