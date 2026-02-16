@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { TrendingUp, ArrowRight, BarChart3, Shield, Wallet, Target, PiggyBank, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import dashboardMockup from "@/assets/dashboard-mockup.png";
 
 const features = [
   {
@@ -48,6 +49,7 @@ const HeroSection = () => {
   const yHeading = useTransform(scrollYProgress, [0, 1], [0, -80]);
   const yText = useTransform(scrollYProgress, [0, 1], [0, -60]);
   const yButtons = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  const yMockup = useTransform(scrollYProgress, [0, 1], [0, -50]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
@@ -102,6 +104,28 @@ const HeroSection = () => {
           </Link>
         </motion.div>
       </div>
+
+      {/* Floating dashboard mockup */}
+      <motion.div
+        style={{ y: yMockup }}
+        initial={{ opacity: 0, y: 60 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+        className="mt-14 relative mx-auto max-w-4xl"
+      >
+        <div className="relative rounded-xl overflow-hidden shadow-2xl border border-border/50">
+          <img
+            src={dashboardMockup}
+            alt="FinTrack Dashboard Preview"
+            className="w-full h-auto"
+            loading="lazy"
+          />
+          {/* Gradient fade at bottom */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
+        </div>
+        {/* Glow effect behind the mockup */}
+        <div className="absolute -inset-4 -z-10 rounded-2xl bg-primary/10 blur-3xl" />
+      </motion.div>
     </section>
   );
 };
