@@ -9,7 +9,7 @@ const Budgets = () => {
         <p className="text-sm text-muted-foreground">Track your spending against budget categories.</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BudgetOverview />
+        <BudgetOverview editable />
         <SpendingChart />
       </div>
     </div>
